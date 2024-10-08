@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Expenses Management System{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Expenses Management System</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+            </ul>
+            <span class="navbar-text me-3">
+                Welcome, User
+            </span>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2>Expenses</h2>
+    <div class="mb-3">
+        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addExpenseModal">Add New Expense</button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addIncomeModal">Add New Income</button>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.id }}</td>
+                <td>{{ expense.title }}</td>
+                <td>{{ expense.describe }}</td>
+                <td>${{ expense.amount }}</td>
+                <td>{{ expense.date }}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning me-1" data-bs-toggle="modal" data-bs-target="#updateExpenseModal{{ expense.id }}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addExpenseModalLabel">Add New Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add expense form here -->
+                <form>
+                    <div class="mb-3">
+                        <label for="expenseTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="expenseTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="expenseDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseAmount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="expenseAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="expenseDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save Expense</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Income Modal -->
+<div class="modal fade" id="addIncomeModal" tabindex="-1" aria-labelledby="addIncomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addIncomeModalLabel">Add New Income</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Add income form here -->
+                <form>
+                    <div class="mb-3">
+                        <label for="incomeTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="incomeTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="incomeDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeAmount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="incomeAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="incomeDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save Income</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for expense in expenses %}
+<!-- Update Expense Modal -->
+<div class="modal fade" id="updateExpenseModal{{ expense.id }}" tabindex="-1" aria-labelledby="updateExpenseModalLabel{{ expense.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateExpenseModalLabel{{ expense.id }}">Update Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Update expense form here -->
+                <form>
+                    <div class="mb-3">
+                        <label for="updateExpenseTitle{{ expense.id }}" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="updateExpenseTitle{{ expense.id }}" value="{{ expense.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateExpenseDescription{{ expense.id }}" class="form-label">Description</label>
+                        <textarea class="form-control" id="updateExpenseDescription{{ expense.id }}" rows="3">{{ expense.describe }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateExpenseAmount{{ expense.id }}" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="updateExpenseAmount{{ expense.id }}" value="{{ expense.amount }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateExpenseDate{{ expense.id }}" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="updateExpenseDate{{ expense.id }}" value="{{ expense.date }}" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Update Expense</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -8,7 +8,7 @@
         <div class="col-md-6 d-flex align-items-center justify-content-center">
             <div class="card p-4" style="width: 300px;">
                 <h2 class="text-center mb-4">Login</h2>
-                <form>
+                <form action="{{ url_for('login_post') }}" method="post">
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required>
@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="col-md-6 d-flex align-items-center justify-content-center bg-light">
-            <img src="{{ url_for('static', filename='img/login-img.svg') }}" alt="Login illustration" class="img-fluid" style="max-width: 80%;">
+            <img src="{{ url_for('static', filename='img/login-image.jpg') }}" alt="Login illustration" class="img-fluid" style="max-width: 80%;">
         </div>
     </div>
 </div>
