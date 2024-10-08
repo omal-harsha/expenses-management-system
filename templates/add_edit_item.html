@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Item - Expenses Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h1 class="card-title mb-0">{{ action }} Item</h1>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="itemForm">
+                    <div class="mb-3">
+                        <label for="entryType" class="form-label">Type</label>
+                        <select class="form-select" id="entryType" name="type" required>
+                            <option value="expense" {% if entry and entry.type == 'expense' %}selected{% endif %}>Expense</option>
+                            <option value="income" {% if entry and entry.type == 'income' %}selected{% endif %}>Income</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entryCategory" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="entryCategory" name="category" required value="{{ entry.category if entry else '' }}" list="categoryList">
+                        <datalist id="categoryList">
+                            <option value="Food">
+                            <option value="Transportation">
+                            <option value="Utilities">
+                            <option value="Entertainment">
+                            <option value="Salary">
+                            <!-- Add more common categories as needed -->
+                        </datalist>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entryDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="entryDescription" name="describe" rows="3">{{ entry.describe if entry else '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entryAmount" class="form-label">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="entryAmount" name="amount" step="0.01" required value="{{ entry.amount if entry else '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="entryDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="entryDate" name="date" required value="{{ entry.date if entry else '' }}">
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Entry
+                        </button>
+                        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('itemForm');
+    const typeSelect = document.getElementById('entryType');
+    const amountInput = document.getElementById('entryAmount');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        if (validateForm()) {
+            this.submit();
+        }
+    });
+
+    typeSelect.addEventListener('change', function() {
+        updateAmountLabel();
+    });
+
+    function validateForm() {
+        let isValid = true;
+
+        // Check if amount is positive
+        if (parseFloat(amountInput.value) <= 0) {
+            showError(amountInput, 'Amount must be greater than 0');
+            isValid = false;
+        } else {
+            clearError(amountInput);
+        }
+
+        // Add more validations as needed
+
+        return isValid;
+    }
+
+    function showError(input, message) {
+        const formGroup = input.closest('.mb-3');
+        const errorDiv = formGroup.querySelector('.invalid-feedback') || document.createElement('div');
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.textContent = message;
+        formGroup.appendChild(errorDiv);
+        input.classList.add('is-invalid');
+    }
+
+    function clearError(input) {
+        const formGroup = input.closest('.mb-3');
+        const errorDiv = formGroup.querySelector('.invalid-feedback');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+        input.classList.remove('is-invalid');
+    }
+
+    function updateAmountLabel() {
+        const amountLabel = document.querySelector('label[for="entryAmount"]');
+        if (typeSelect.value === 'income') {
+            amountLabel.textContent = 'Income Amount';
+        } else {
+            amountLabel.textContent = 'Expense Amount';
+        }
+    }
+
+    // Initialize the form
+    updateAmountLabel();
+});
+</script>
+{% endblock %}
