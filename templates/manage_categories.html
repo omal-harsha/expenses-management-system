@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Categories - Expenses Management System{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Manage Categories</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Add New Category</h2>
+        <form action="{{ url_for('add_category') }}" method="POST" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="category" class="form-control" placeholder="Enter new category" required>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h2>Existing Categories</h2>
+<ul class="list-group">
+    {% for category in categories %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ category }}
+        <div>
+            <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editCategoryModal{{ loop.index }}">Edit</button>
+            <form action="{{ url_for('delete_category') }}" method="POST" class="d-inline">
+                <input type="hidden" name="category" value="{{ category }}">
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this category?')">Delete</button>
+            </form>
+        </div>
+    </li>
+
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCategoryModal{{ loop.index }}" tabindex="-1" aria-labelledby="editCategoryModalLabel{{ loop.index }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCategoryModalLabel{{ loop.index }}">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('edit_category') }}" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="old_category" value="{{ category }}">
+                        <div class="mb-3">
+                            <label for="newCategory{{ loop.index }}" class="form-label">New Category Name</label>
+                            <input type="text" class="form-control" id="newCategory{{ loop.index }}" name="new_category" value="{{ category }}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -15,6 +15,9 @@
                     <a class="nav-link {% if request.endpoint == 'add_item' %}active{% endif %}" href="{{ url_for('add_item') }}">Add Item</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('manage_categories') }}">Categories</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'report' %}active{% endif %}" href="{{ url_for('report') }}">Report</a>
                 </li>
                 <li class="nav-item">
