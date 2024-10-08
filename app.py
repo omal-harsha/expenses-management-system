@@ -22,8 +22,13 @@ def get_totals():
     return total_expenses, total_income, remaining_balance
 
 @app.route('/')
+@app.route('/login')
 def login():
-    return render_template('login.html')
+    return render_template('login.html', hide_nav=True)
+
+@app.route('/register')
+def register():
+    return render_template('register.html', hide_nav=True)
 
 @app.route('/home')
 def home():
@@ -31,6 +36,48 @@ def home():
     return render_template('home.html', entries=entries,
                            total_expenses=total_expenses, total_income=total_income,
                            remaining_balance=remaining_balance)
+
+@app.route('/add_item', methods=['GET', 'POST'])
+def add_item():
+    if request.method == 'POST':
+        # Handle form submission
+        new_entry = {
+            "id": max(entry['id'] for entry in entries) + 1,
+            "category": request.form['category'],
+            "describe": request.form['describe'],
+            "amount": float(request.form['amount']),
+            "date": request.form['date'],
+            "type": request.form['type']
+        }
+        entries.append(new_entry)
+        return redirect(url_for('home'))
+    return render_template('add_edit_item.html', action='Add')
+
+@app.route('/edit_item/<int:id>', methods=['GET', 'POST'])
+def edit_item(id):
+    entry = next((entry for entry in entries if entry['id'] == id), None)
+    if entry is None:
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        # Handle form submission
+        entry.update({
+            "category": request.form['category'],
+            "describe": request.form['describe'],
+            "amount": float(request.form['amount']),
+            "date": request.form['date'],
+            "type": request.form['type']
+        })
+        return redirect(url_for('home'))
+    return render_template('add_edit_item.html', action='Edit', entry=entry)
+
+@app.route('/report')
+def report():
+    return render_template('report.html')
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
 
 @app.route('/login', methods=['POST'])
 def login_post():

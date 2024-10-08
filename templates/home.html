@@ -3,62 +3,45 @@
 {% block title %}Home - Expenses Management System{% endblock %}
 
 {% block content %}
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Expenses Management System</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-            </ul>
-            <span class="navbar-text me-3">
-                Welcome, User
-            </span>
-            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Logout</a>
-        </div>
-    </div>
-</nav>
+<h1 class="mb-4">Expenses and Income Overview</h1>
 
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Total Expenses</h5>
-                    <p class="card-text" id="total-expenses">${{ total_expenses }}</p>
-                </div>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Expenses</h5>
+                <p class="card-text fs-2" id="total-expenses">${{ total_expenses }}</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Total Income</h5>
-                    <p class="card-text" id="total-income">${{ total_income }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Remaining Balance</h5>
-                    <p class="card-text" id="remaining-balance">${{ remaining_balance }}</p>
-                </div>
-            </div>
-        </div>
-        
     </div>
-    
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Income</h5>
+                <p class="card-text fs-2" id="total-income">${{ total_income }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Remaining Balance</h5>
+                <p class="card-text fs-2" id="remaining-balance">${{ remaining_balance }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <h2>Expenses and Income</h2>
-    <div class="mb-3">
-        <button class="btn btn-primary" onclick="showAddEntryModal()">Add New Entry</button>
-    </div>
-    <table class="table table-striped" id="entries-table">
-        <thead>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Recent Transactions</h2>
+    <a href="{{ url_for('add_item') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Entry
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover" id="entries-table">
+        <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Category</th>
@@ -73,16 +56,24 @@
             {% for entry in entries %}
             <tr data-id="{{ entry.id }}" data-type="{{ entry.type }}">
                 <td>{{ entry.id }}</td>
-                <td>{{ entry.category }}</td>
-                <td>{{ entry.describe }}</td>
-                <td>${{ entry.amount }}</td>
-                <td>{{ entry.date }}</td>
-                <td>{{ entry.type|capitalize }}</td>
                 <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="editEntry({{ entry.id }})">
+                    <span class="badge bg-secondary">{{ entry.category }}</span>
+                </td>
+                <td>{{ entry.describe }}</td>
+                <td class="{{ 'text-success' if entry.type == 'income' else 'text-danger' }}">
+                    ${{ entry.amount }}
+                </td>
+                <td>{{ entry.date }}</td>
+                <td>
+                    <span class="badge {{ 'bg-success' if entry.type == 'income' else 'bg-danger' }}">
+                        {{ entry.type|capitalize }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('edit_item', id=entry.id) }}" class="btn btn-sm btn-warning me-1" title="Edit">
                         <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteEntry({{ entry.id }})">
+                    </a>
+                    <button class="btn btn-sm btn-danger" onclick="deleteEntry({{ entry.id }})" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -92,216 +83,59 @@
     </table>
 </div>
 
-<!-- Add/Edit Entry Modal -->
-<div class="modal fade" id="entryModal" tabindex="-1" aria-labelledby="entryModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="entryModalLabel">Add New Entry</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="entryForm">
-                    <input type="hidden" id="entryId">
-                    <div class="mb-3">
-                        <label for="entryType" class="form-label">Type</label>
-                        <select class="form-select" id="entryType" required>
-                            <option value="expense">Expense</option>
-                            <option value="income">Income</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="entryCategory" class="form-label">Category</label>
-                        <input type="text" class="form-control" id="entryCategory" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="entryDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="entryDescription" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="entryAmount" class="form-label">Amount</label>
-                        <input type="number" class="form-control" id="entryAmount" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="entryDate" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="entryDate" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveEntryBtn">Save Entry</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-let entryModal;
-let currentAction;
+function deleteEntry(id) {
+    if (confirm('Are you sure you want to delete this entry?')) {
+        fetch('/delete_entry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the table row
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                row.remove();
 
-document.addEventListener('DOMContentLoaded', function() {
-    entryModal = new bootstrap.Modal(document.getElementById('entryModal'));
+                // Update the totals
+                updateTotals(data.total_expenses, data.total_income, data.remaining_balance);   
+                
+                // Show a success message
+                showAlert('Entry deleted successfully', 'success');
+            } else {
+                showAlert('Failed to delete entry', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred while deleting the entry', 'danger');
+        });
+    }
+}
+
+function updateTotals(totalExpenses, totalIncome, remainingBalance) {
+    document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
+    document.getElementById('total-income').textContent = `$${totalIncome.toFixed(2)}`;
+    document.getElementById('remaining-balance').textContent = `$${remainingBalance.toFixed(2)}`;
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.container').firstChild);
     
-    document.getElementById('saveEntryBtn').addEventListener('click', function() {
-        if (currentAction === 'add') {
-            addEntry();
-        } else {
-            updateEntry();
-        }
-    });
-});
-
-function showAddEntryModal() {
-    currentAction = 'add';
-    document.getElementById('entryModalLabel').textContent = 'Add New Entry';
-    document.getElementById('entryForm').reset();
-    entryModal.show();
+    // Automatically dismiss the alert after 5 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
 }
-
-function addEntry() {
-    const type = document.getElementById('entryType').value;
-    const category = document.getElementById('entryCategory').value;
-    const describe = document.getElementById('entryDescription').value;
-    const amount = document.getElementById('entryAmount').value;
-    const date = document.getElementById('entryDate').value;
-
-    fetch('/add_entry', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ type, category, describe, amount, date }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update the table
-            const table = document.getElementById('entries-table').getElementsByTagName('tbody')[0];
-            const newRow = table.insertRow();
-            newRow.dataset.id = data.new_entry.id;
-            newRow.dataset.type = type;
-            newRow.innerHTML = `
-                <td>${data.new_entry.id}</td>
-                <td>${data.new_entry.category}</td>
-                <td>${data.new_entry.describe}</td>
-                <td>$${data.new_entry.amount}</td>
-                <td>${data.new_entry.date}</td>
-                <td>${type.charAt(0).toUpperCase() + type.slice(1)}</td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" onclick="editEntry(${data.new_entry.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteEntry(${data.new_entry.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-
-            // Update the totals
-            updateTotals(data.total_expenses, data.total_income, data.remaining_balance);
-
-            // Close the modal
-            entryModal.hide();
-
-            // Reset the form
-            document.getElementById('entryForm').reset();
-        }
-    });
-}
-
-function editEntry(id) {
-    currentAction = 'edit';
-    document.getElementById('entryModalLabel').textContent = 'Edit Entry';
-    document.getElementById('entryId').value = id;
-
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    document.getElementById('entryType').value = row.dataset.type;
-    document.getElementById('entryCategory').value = row.cells[1].textContent;
-    document.getElementById('entryDescription').value = row.cells[2].textContent;
-    document.getElementById('entryAmount').value = row.cells[3].textContent.slice(1); // Remove '$'
-    document.getElementById('entryDate').value = row.cells[4].textContent;
-
-    entryModal.show();
-}
-
-function updateEntry() {
-    const id = document.getElementById('entryId').value;
-    const type = document.getElementById('entryType').value;
-    const category = document.getElementById('entryCategory').value;
-    const describe = document.getElementById('entryDescription').value;
-    const amount = document.getElementById('entryAmount').value;
-    const date = document.getElementById('entryDate').value;
-
-    fetch('/edit_entry', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id, type, category, describe, amount, date }),
-    })
-    .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the table row
-                    const row = document.querySelector(`tr[data-id="${data.updated_entry.id}"]`);
-                    row.dataset.type = data.updated_entry.type;
-                    row.innerHTML = `
-                        <td>${data.updated_entry.id}</td>
-                        <td>${data.updated_entry.category}</td>
-                        <td>${data.updated_entry.describe}</td>
-                        <td>$${data.updated_entry.amount}</td>
-                        <td>${data.updated_entry.date}</td>
-                        <td>${data.updated_entry.type.charAt(0).toUpperCase() + data.updated_entry.type.slice(1)}</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning me-1" onclick="editEntry(${data.updated_entry.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteEntry(${data.updated_entry.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-
-                    // Update the totals
-                    updateTotals(data.total_expenses, data.total_income, data.remaining_balance);
-
-                    // Close the modal
-                    entryModal.hide();
-
-                    // Reset the form
-                    document.getElementById('entryForm').reset();
-                }
-            });
-    }
-
-    function deleteEntry(id) {
-        if (confirm('Are you sure you want to delete this entry?')) {
-            fetch('/delete_entry', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the table row
-                    const row = document.querySelector(`tr[data-id="${id}"]`);
-                    row.remove();
-
-                    // Update the totals
-                    updateTotals(data.total_expenses, data.total_income, data.remaining_balance);   
-                }
-            });
-        }
-    }
-
-    function updateTotals(totalExpenses, totalIncome, remainingBalance) {
-        document.getElementById('total-expenses').textContent = `$${totalExpenses}`;
-        document.getElementById('total-income').textContent = `$${totalIncome}`;
-        document.getElementById('remaining-balance').textContent = `$${remainingBalance}`;
-    }
 </script>
-{% endblock %}  
+{% endblock %}
