@@ -15,6 +15,11 @@ entries = [
     {"id": 10, "category": "gifts", "describe": "birthday present for friend", "amount": 3500, "date": "2024-10-01", "type": "expense"}
 ]
 
+categories = [
+    "food", "bills", "travel", "entertainment", "groceries", 
+    "transportation", "health", "education", "clothing", "gifts"
+]
+
 def get_totals():
     total_expenses = sum(entry['amount'] for entry in entries if entry['type'] == 'expense')
     total_income = sum(entry['amount'] for entry in entries if entry['type'] == 'income')
@@ -51,7 +56,7 @@ def add_item():
         }
         entries.append(new_entry)
         return redirect(url_for('home'))
-    return render_template('add_edit_item.html', action='Add')
+    return render_template('add_edit_item.html', action='Add',categories=categories)
 
 @app.route('/edit_item/<int:id>', methods=['GET', 'POST'])
 def edit_item(id):
@@ -69,7 +74,7 @@ def edit_item(id):
             "type": request.form['type']
         })
         return redirect(url_for('home'))
-    return render_template('add_edit_item.html', action='Edit', entry=entry)
+    return render_template('add_edit_item.html', action='Edit', entry=entry, categories=categories)
 
 @app.route('/report')
 def report():
@@ -151,6 +156,37 @@ def delete_entry():
         "total_income": total_income,
         "remaining_balance": remaining_balance
     })
+
+@app.route('/manage_categories')
+def manage_categories():
+    return render_template('manage_categories.html', categories=categories)
+
+@app.route('/add_category', methods=['POST'])
+def add_category():
+    new_category = request.form['category']
+    if new_category and new_category not in categories:
+        categories.append(new_category)
+    return redirect(url_for('manage_categories'))
+
+@app.route('/edit_category', methods=['POST'])
+def edit_category():
+    old_category = request.form['old_category']
+    new_category = request.form['new_category']
+    if old_category in categories and new_category:
+        index = categories.index(old_category)
+        categories[index] = new_category
+        # Update entries with the new category name
+        for entry in entries:
+            if entry['category'] == old_category:
+                entry['category'] = new_category
+    return redirect(url_for('manage_categories'))
+
+@app.route('/delete_category', methods=['POST'])
+def delete_category():
+    category = request.form['category']
+    if category in categories:
+        categories.remove(category)
+    return redirect(url_for('manage_categories'))
 
 if __name__ == '__main__':
     app.run(debug=True)

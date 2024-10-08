@@ -20,15 +20,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="entryCategory" class="form-label">Category</label>
-                        <input type="text" class="form-control" id="entryCategory" name="category" required value="{{ entry.category if entry else '' }}" list="categoryList">
-                        <datalist id="categoryList">
-                            <option value="Food">
-                            <option value="Transportation">
-                            <option value="Utilities">
-                            <option value="Entertainment">
-                            <option value="Salary">
-                            <!-- Add more common categories as needed -->
-                        </datalist>
+                        <select class="form-select" id="entryCategory" name="category" required>
+                            {% for category in categories %}
+                                <option value="{{ category }}" {% if entry and entry.category == category %}selected{% endif %}>{{ category|capitalize }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="entryDescription" class="form-label">Description</label>
