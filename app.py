@@ -12,13 +12,22 @@ entries = [
     {"id": 7, "category": "health", "describe": "gym membership fee", "amount": 3000, "date": "2024-10-04", "type": "expense"},
     {"id": 8, "category": "education", "describe": "buying books for school", "amount": 4000, "date": "2024-10-03", "type": "expense"},
     {"id": 9, "category": "clothing", "describe": "shopping for new clothes", "amount": 2500, "date": "2024-10-02", "type": "expense"},
-    {"id": 10, "category": "gifts", "describe": "birthday present for friend", "amount": 3500, "date": "2024-10-01", "type": "expense"}
+    {"id": 10, "category": "gifts", "describe": "birthday present for friend", "amount": 3500, "date": "2024-10-01", "type": "expense"},
+    {"id": 11, "category": "salary", "describe": "october", "amount": 50000, "date": "2024-10-01", "type": "income"}
 ]
 
 categories = [
     "food", "bills", "travel", "entertainment", "groceries", 
     "transportation", "health", "education", "clothing", "gifts"
 ]
+
+user = {
+    "username": "johndoe",
+    "email": "johndoe@example.com",
+    "full_name": "John Doe",
+    "phone": "123-456-7890",
+    "address": "123 Main St, Anytown, USA"
+}
 
 def get_totals():
     total_expenses = sum(entry['amount'] for entry in entries if entry['type'] == 'expense')
@@ -80,9 +89,9 @@ def edit_item(id):
 def report():
     return render_template('report.html')
 
-@app.route('/profile')
-def profile():
-    return render_template('profile.html')
+# @app.route('/profile')
+# def profile():
+#     return render_template('profile.html')
 
 @app.route('/login', methods=['POST'])
 def login_post():
@@ -187,6 +196,22 @@ def delete_category():
     if category in categories:
         categories.remove(category)
     return redirect(url_for('manage_categories'))
+
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html', user=user)
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+def edit_profile():
+    if request.method == 'POST':
+        # Update user data (in a real app, you'd save this to a database)
+        user['full_name'] = request.form['full_name']
+        user['email'] = request.form['email']
+        user['phone'] = request.form['phone']
+        user['address'] = request.form['address']
+        return redirect(url_for('profile'))
+    return render_template('edit_profile.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True)
