@@ -19,7 +19,7 @@ entries = [
 
 categories = [
     "food", "bills", "travel", "entertainment", "groceries", 
-    "transportation", "health", "education", "clothing", "gifts"
+    "transportation", "health", "education", "clothing", "gifts,salary"
 ]
 
 user = {
@@ -50,7 +50,8 @@ def home():
     total_expenses, total_income, remaining_balance = get_totals()
     return render_template('home.html', entries=entries,
                            total_expenses=total_expenses, total_income=total_income,
-                           remaining_balance=remaining_balance)
+                           remaining_balance=remaining_balance, categories=categories)
+
 
 @app.route('/add_item', methods=['GET', 'POST'])
 def add_item():
@@ -114,7 +115,7 @@ def report():
 @app.route('/login', methods=['POST'])
 def login_post():
     # Here you would normally check the credentials
-    # For now, we'll just redirect to the home page
+    # For now,just redirect to the home page
     return redirect(url_for('home'))
 
 @app.route('/add_entry', methods=['POST'])
@@ -223,7 +224,7 @@ def profile():
 @app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
     if request.method == 'POST':
-        # Update user data (in a real app, you'd save this to a database)
+        # Update user data 
         user['full_name'] = request.form['full_name']
         user['email'] = request.form['email']
         user['phone'] = request.form['phone']
