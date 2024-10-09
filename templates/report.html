@@ -1,0 +1,115 @@
+{% extends "base.html" %} {% block title %}Report - Expenses Management System{%
+endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Financial Report</h1>
+    <div>
+      <button class="btn btn-primary" onclick="exportToCSV()">Export to CSV</button>
+    </div>
+  </div>
+  
+
+<div class="row mb-4">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Income vs Expenses</h5>
+        <canvas id="incomeExpensesChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Summary</h5>
+        <ul class="list-group list-group-flush">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            Total Income
+            <span class="badge bg-success rounded-pill"
+              >${{ total_income }}</span
+            >
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            Total Expenses
+            <span class="badge bg-danger rounded-pill"
+              >${{ total_expenses }}</span
+            >
+          </li>
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            Balance
+            <span class="badge bg-primary rounded-pill"
+              >${{ remaining_balance }}</span
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Income vs Expenses Chart
+  const incomeExpensesCtx = document.getElementById('incomeExpensesChart').getContext('2d');
+  new Chart(incomeExpensesCtx, {
+      type: 'bar',
+      data: {
+          labels: ['Income', 'Expenses'],
+          datasets: [{
+              label: 'Amount',
+              data: [{{ total_income }}, {{ total_expenses }}],
+              backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+              borderColor: ['rgb(75, 192, 192)', 'rgb(255, 99, 132)'],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  title: {
+                      display: true,
+                      text: 'Amount ($)'
+                  }
+              }
+          },
+          plugins: {
+              title: {
+                  display: true,
+                  text: 'Income vs Expenses'
+              },
+              legend: {
+                  display: false
+              }
+          }
+      }
+  });
+</script>
+
+<script>
+  function exportToCSV() {
+      const entries = {{ entries | tojson | safe }};
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "ID,Category,Description,Amount,Date,Type\n";
+
+      entries.forEach(entry => {
+          const row = `${entry.id},${entry.category},"${entry.describe}",${entry.amount},${entry.date},${entry.type}`;
+          csvContent += row + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "expense_report.csv");
+      document.body.appendChild(link);
+      link.click();
+  }
+</script>
+{% endblock %}

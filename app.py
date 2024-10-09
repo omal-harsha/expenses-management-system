@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
+import json
 
 app = Flask(__name__)
 
@@ -87,11 +88,28 @@ def edit_item(id):
 
 @app.route('/report')
 def report():
-    return render_template('report.html')
+    total_expenses = sum(entry['amount'] for entry in entries if entry['type'] == 'expense')
+    total_income = sum(entry['amount'] for entry in entries if entry['type'] == 'income')
+    remaining_balance = total_income - total_expenses
 
-# @app.route('/profile')
-# def profile():
-#     return render_template('profile.html')
+    # Calculate expense breakdown by category
+    expense_categories = {}
+    for entry in entries:
+        if entry['type'] == 'expense':
+            category = entry['category']
+            amount = entry['amount']
+            if category in expense_categories:
+                expense_categories[category] += amount
+            else:
+                expense_categories[category] = amount
+
+    return render_template('report.html', 
+                           entries=entries,
+                           total_expenses=total_expenses,
+                           total_income=total_income,
+                           remaining_balance=remaining_balance,
+                           expense_categories=expense_categories)
+
 
 @app.route('/login', methods=['POST'])
 def login_post():
