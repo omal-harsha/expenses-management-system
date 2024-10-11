@@ -19,15 +19,15 @@ entries = [
 
 categories = [
     "food", "bills", "travel", "entertainment", "groceries", 
-    "transportation", "health", "education", "clothing", "gifts,salary"
+    "transportation", "health", "education", "clothing", "gifts","salary"
 ]
 
 user = {
-    "username": "johndoe",
-    "email": "johndoe@example.com",
-    "full_name": "John Doe",
-    "phone": "123-456-7890",
-    "address": "123 Main St, Anytown, USA"
+    "username": "user",
+    "email": "user@gmail.com",
+    "full_name": "user",
+    "phone": "123456789",
+    "address": "123, address"
 }
 
 def get_totals():
@@ -41,9 +41,18 @@ def get_totals():
 def login():
     return render_template('login.html', hide_nav=True)
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        
+        return redirect(url_for('login'))
+    
     return render_template('register.html', hide_nav=True)
+
 
 @app.route('/home')
 def home():
@@ -231,6 +240,8 @@ def edit_profile():
         user['address'] = request.form['address']
         return redirect(url_for('profile'))
     return render_template('edit_profile.html', user=user)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
